@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kids Game World</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- AdMob Ads Script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-app-pub-6922086367851074" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --primary: #FF9E00;
+            --secondary: #00B4D8;
+            --accent: #FFD166;
+            --background: #F8F9FA;
+            --text: #2B2D42;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            color: white;
+            font-size: 2.5rem;
+            margin: 0;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        #search {
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 50px;
+            border: 3px solid var(--accent);
+            font-size: 1.1rem;
+            outline: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        .game-icon {
+            width: 100%;
+            height: 120px;
+            object-fit: contain;
+            background: white;
+            padding: 10px;
+        }
+
+        .game-name {
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            font-weight: bold;
+        }
+
+        .ad-container {
+            width: 100%;
+            padding: 10px;
+            background: #f0f0f0;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Interstitial ad trigger button */
+        .interstitial-trigger {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px 15px;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-family: 'Comic Neue', cursive;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .interstitial-trigger:hover {
+            background-color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Kids Game World</h1>
+    </header>
+
+    <div class="search-container">
+        <input type="text" id="search" placeholder="🔍 Search games..." autocomplete="off">
+    </div>
+
+    <!-- Top Banner Ad -->
+    <div class="ad-container">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-app-pub-6922086367851074"
+             data-ad-slot="5064878979"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+
+    <div class="games-grid" id="gamesContainer">
+        <div style="text-align: center; grid-column: 1/-1;">
+            <i class="fas fa-spinner fa-spin"></i> Loading games...
+        </div>
+    </div>
+
+    <!-- Interstitial Ad Trigger Button -->
+    <button class="interstitial-trigger" id="showInterstitial">Show Full-Screen Ad</button>
+
+    <!-- Bottom Banner Ad -->
+    <div class="ad-container">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-app-pub-6922086367851074"
+             data-ad-slot="5064878979"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const gamesContainer = document.getElementById('gamesContainer');
+            const searchInput = document.getElementById('search');
+            const interstitialBtn = document.getElementById('showInterstitial');
+            
+            // Load CSV data
+            function loadGames() {
+                const csvUrl = 'https://docs.google.com/spreadsheets/d/1BNqzfefn6T1oTdsf-m7INX2MzEXJpIqXQVc-GPgfGDY/export?format=csv';
+                
+                Papa.parse(csvUrl, {
+                    download: true,
+                    header: true,
+                    complete: function(results) {
+                        const games = results.data.filter(game => game.Name && game.Link);
+                        displayGames(games);
+                        
+                        // Search functionality
+                        searchInput.addEventListener('input', function() {
+                            const term = this.value.toLowerCase();
+                            const filtered = games.filter(game => 
+                                game.Name.toLowerCase().includes(term)
+                            );
+                            displayGames(filtered);
+                        });
+                    },
+                    error: function(error) {
+                        gamesContainer.innerHTML = '<div style="text-align:center;grid-column:1/-1;color:red;">Error loading games. Please try again later.</div>';
+                    }
+                });
+            }
+            
+            // Display games
+            function displayGames(games) {
+                if (games.length === 0) {
+                    gamesContainer.innerHTML = '<div style="text-align:center;grid-column:1/-1;">No games found. Try a different search!</div>';
+                    return;
+                }
+                
+                let html = '';
+                games.forEach(game => {
+                    html += `
+                        <div class="game-card" onclick="window.open('${game.Link}', '_blank')">
+                            <img src="${game.Icon || 'https://via.placeholder.com/150?text=Game'}" alt="${game.Name}" class="game-icon">
+                            <div class="game-name">${game.Name}</div>
+                        </div>
+                    `;
+                });
+                
+                gamesContainer.innerHTML = html;
+            }
+            
+            // Interstitial ad handling
+            interstitialBtn.addEventListener('click', function() {
+                // This is a placeholder - in a real app you would load the interstitial here
+                alert("In a real app, this would show a full-screen ad. For web, you would use Google Ad Manager for interstitials.");
+                
+                // For web, you would typically use:
+                // window.open('admob interstitial URL', '_blank');
+                // Or implement through Google Ad Manager
+            });
+            
+            loadGames();
+        });
+    </script>
+</body>
+</html>
